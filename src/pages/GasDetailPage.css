@@ -1,0 +1,43 @@
+.container.gas {
+  max-width: 1300px;
+  margin: 100px auto;
+  padding: 0 18px;
+}
+
+.panel {
+  background: transparent;
+  border: 2px solid #324E71;
+  border-radius: 100px;
+  padding: 28px;
+}
+.card-title {
+  font-size: 24px;
+  font-weight: 500;
+  margin: 10px 0 5px;
+  text-align: center;
+}
+
+.copy {
+  font-size: 24px;
+  line-height: 1.4;
+  text-align: justify;
+  hyphens: auto;
+  word-wrap: break-word;
+  margin-top: 30px;
+  padding: 0 20px;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: var(--muted);
+  font-size: 18px;
+}
+
+.cards-rocket{display:flex;justify-content:center;margin: 30px;}
+
+.card-rocket{width: 275px;height: 300px;background: transparent;border: 2px solid #324E71;border-radius: 30px;padding: 22px 18px;box-shadow: 0 14px 34px rgba(0,0,0,.28);display:flex;flex-direction:column;align-items:center;gap:14px;}
+
+.thumb-wrap{width: 202px;height: 166px;background: transparent;overflow: hidden;}
+
+.thumb{width:100%;height:100%;object-fit:cover;display:block;} 

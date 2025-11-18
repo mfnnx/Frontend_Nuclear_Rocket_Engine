@@ -1,0 +1,133 @@
+.gases-page-head {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  margin: 10px 0 16px;
+}
+
+.gases-page-title {
+  grid-column: 2;
+  justify-self: center;
+  margin-top: 31px;
+  text-align: center;
+  font-size: 30px;
+}
+
+.gases-search {
+  position: relative;
+  width: 300px;
+  margin: 20px auto 26px;
+}
+
+.gases-search-field {
+  width: 100%;
+  padding: 12px 16px 12px 20px;
+  border-radius: 999px;
+  border: 2px solid #D2F95F;
+  background: transparent;
+  color: #D2F95F;
+  outline: none;
+  font-family: 'Mariupol', sans-serif;
+  font-size: 15px;
+}
+
+.gases-search-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+
+.gases-search-field::placeholder {
+  color: #D2F95F;
+  opacity: 1;
+}
+
+.gases-cards-rocket {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 51px 152px;
+  margin: 51px auto;
+  width: 1200px;
+}
+
+.gases-card-rocket {
+  width: 275px;
+  height: 388px;
+  background: transparent;
+  border: 2px solid #324E71;
+  border-radius: 30px;
+  padding: 22px 18px;
+  box-shadow: 0 14px 34px rgba(0,0,0,.28);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  flex: 0 0 275px;
+}
+
+.gases-thumb-wrap {
+  width: 202px;
+  height: 166px;
+  background: transparent;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.gases-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gases-card-title {
+  font-size: 24px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.gases-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+}
+
+.gases-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 203px;
+  height: 54px;
+  border-radius: 999px;
+  font-family: 'Mariupol', sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  border: 2px solid rgba(255,255,255,.1);
+}
+
+.gases-btn-ghost {
+  background: #324E71;
+  color: #FFFFFF;
+}
+
+.gases-btn-ghost:hover {
+  background: #D2F95F;
+  color: #0e1e2b;
+}
+
+.gases-loading {
+  text-align: center;
+  font-size: 18px;
+  color: #a9c2d8;
+  margin: 50px 0;
+}
