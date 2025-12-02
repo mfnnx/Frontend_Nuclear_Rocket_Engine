@@ -11,11 +11,13 @@ const App: FC = () => {
   return (
     <div className="app">
       <Header />
-      <Routes>
-        <Route path={ROUTES.HOME} element={<HomePage />} />
-        <Route path={ROUTES.GASES} element={<GasesPage />} />
-        <Route path={ROUTES.GAS_DETAIL} element={<GasDetailPage />} />
-      </Routes>
+      <main style={{ paddingTop: '80px' }}>
+        <Routes>
+          <Route path={ROUTES.HOME} element={<HomePage />} />
+          <Route path={ROUTES.GASES} element={<GasesPage />} />
+          <Route path={ROUTES.GAS_DETAIL} element={<GasDetailPage />} />
+        </Routes>
+      </main>
     </div>
   )
 }

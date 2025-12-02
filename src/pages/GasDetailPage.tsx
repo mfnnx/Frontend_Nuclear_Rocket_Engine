@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import type { Gas } from '../types'
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate} from 'react-router-dom'
 import { gasesApi } from '../modules/api'
 import BreadCrumbs from '../components/BreadCrumbs'
 import { ROUTES, ROUTE_LABELS } from '../Routes'
@@ -90,6 +90,8 @@ const GasDetailPage: FC = () => {
           {gas.description}
         </article>
       </section>
+      
+
     </main>
   )
 }

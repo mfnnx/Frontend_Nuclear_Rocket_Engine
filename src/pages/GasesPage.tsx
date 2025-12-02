@@ -1,22 +1,25 @@
-import type { FC } from 'react'
+import type { FC, FormEvent } from 'react'
 import type { Gas, GasFilters } from '../types'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { gasesApi } from '../modules/api'
 import './GasesPage.css'
+import { getAsset } from '../utils/path'
 
 const GasesPage: FC = () => {
   const [gases, setGases] = useState<Gas[]>([])
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const searchInputRef = useRef<HTMLInputElement>(null)
   
   useEffect(() => {
     const loadGases = async () => {
       setLoading(true)
       try {
         const filters: GasFilters = {}
-        if (searchQuery) {
-          filters.search = searchQuery
+        if (searchTerm) {
+          filters.search = searchTerm
         }
         
         const data = await gasesApi.getGases(filters)
@@ -28,56 +31,104 @@ const GasesPage: FC = () => {
       }
     }
 
-    const timeoutId = setTimeout(loadGases, 300)
-    return () => clearTimeout(timeoutId)
-  }, [searchQuery])
+    loadGases()
+  }, [searchTerm])
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  const handleSearchSubmit = (e: FormEvent) => {
     e.preventDefault()
+    setSearchTerm(searchQuery)
   }
+
+  const handleSearchClick = () => {
+    if (searchInputRef.current) {
+      searchInputRef.current.focus()
+    }
+    setSearchTerm(searchQuery)
+  }
+
+  const handleInputKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      setSearchTerm(searchQuery)
+    }
+  }
+
 
   return (
     <main className="container gases-page">
-      
-      
       <div className="gases-page-head">
         <h1 className="gases-page-title">Рабочее тело</h1>
       </div>
 
-      <div className="gases-search d-flex justify-content-center">
-        <form className="gases-search-form position-relative" onSubmit={handleSearchSubmit}>
-          <input 
-            type="search" 
-            className="gases-search-field form-control" 
-            placeholder="Поиск…" 
-            name="searchGases" 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              width: '300px',
-              padding: '12px 16px 12px 20px',
-              borderRadius: '999px',
-              border: '2px solid #D2F95F',
-              background: 'transparent',
-              color: '#D2F95F',
-              fontSize: '15px'
-            }}
-          />
-          <img 
-            src="http://localhost:9000/img/search.png" 
-            className="gases-search-icon position-absolute" 
-            alt="Поиск"
-            style={{
-              right: '14px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              width: '20px',
-              height: '20px',
-              pointerEvents: 'none'
-            }}
-          />
-        </form>
-      </div>
+<div className="gases-search d-flex justify-content-center">
+  <form 
+    className="gases-search-form" 
+    onSubmit={handleSearchSubmit}
+    style={{ 
+      position: 'relative', 
+      display: 'inline-block'
+    }}
+  >
+    <input 
+      ref={searchInputRef}
+      type="text" 
+      className="gases-search-field form-control" 
+      placeholder="Поиск…" 
+      name="searchGases" 
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      onKeyDown={handleInputKeyDown}
+      style={{
+        width: '300px',
+        height: '48px',
+        padding: '0 44px 0 20px',
+        borderRadius: '999px',
+        border: '2px solid #D2F95F',
+        background: 'transparent',
+        color: '#D2F95F',
+        fontSize: '15px',
+        WebkitAppearance: 'none',
+        MozAppearance: 'textfield',
+        lineHeight: '48px',
+        boxSizing: 'border-box'
+      }}
+    />
+    <button
+      type="submit"
+      onClick={handleSearchClick}
+      style={{
+        position: 'absolute',
+        right: '14px',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        background: 'transparent',
+        border: 'none',
+        padding: '0',
+        margin: '0',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '24px',
+        height: '24px',
+        outline: 'none'
+      }}
+      aria-label="Поиск"
+    >
+      <img 
+        src={getAsset('img/search.png')}
+        alt="Поиск"
+        style={{
+          width: '20px',
+          height: '20px',
+          display: 'block',
+          filter: 'brightness(0) saturate(100%) invert(89%) sepia(67%) saturate(587%) hue-rotate(23deg) brightness(101%) contrast(96%)'
+        }}
+      />
+    </button>
+  </form>
+</div>
+
 
 
       {loading ? (
@@ -98,7 +149,7 @@ const GasesPage: FC = () => {
               >
                 <img 
                   className="gases-thumb" 
-                  src={gas.imageURL} 
+                  src={getAsset(gas.imageURL || '')} 
                   alt={gas.title}
                   style={{
                     width: '100%',
@@ -107,20 +158,17 @@ const GasesPage: FC = () => {
                     display: 'block'
                   }}
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/images/default-gas.png'
+                    (e.target as HTMLImageElement).src = getAsset('images/default-gas.png')
                   }}
                 />
               </div>
-              <div className="gases-card-info text-center flex-grow-1 d-flex flex-column justify-content-center">
+              <div className="gases-card-info text-center flex-grow-1 d-flex flex-direction-column justify-content-center">
                 <div className="gases-card-title">{gas.title}</div>
               </div>
               <div className="gases-actions w-100 mt-auto">
                 <Link className="gases-btn gases-btn-ghost w-100" to={`/gases/${gas.id}`}>
                   К описанию
                 </Link>
-                <button className="gases-btn gases-btn-ghost w-100">
-                  Выбрать
-                </button>
               </div>
             </article>
           ))}

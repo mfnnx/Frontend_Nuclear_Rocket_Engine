@@ -1,6 +1,7 @@
 .container.gas {
   max-width: 1300px;
-  margin: 100px auto;
+  margin: 0px auto;
+
   padding: 0 18px;
 }
 
@@ -41,3 +42,252 @@
 .thumb-wrap{width: 202px;height: 166px;background: transparent;overflow: hidden;}
 
 .thumb{width:100%;height:100%;object-fit:cover;display:block;} 
+/* Адаптивность для детальной страницы газа */
+
+/* Контейнер детальной страницы газа */
+@media (max-width: 768px) {
+  .container.gas-detail {
+    margin: 60px auto;
+    padding: 0 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container.gas-detail {
+    margin: 40px auto;
+    padding: 0 8px;
+  }
+}
+
+/* Панель на детальной странице - мобильная */
+@media (max-width: 768px) {
+  .panel.gas-detail-panel {
+    border-radius: 50px;
+    padding: 20px;
+    margin: 20px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .panel.gas-detail-panel {
+    border-radius: 30px;
+    padding: 16px;
+    border-width: 1.5px;
+    margin: 16px 0;
+  }
+}
+
+/* Заголовок детальной страницы газа - мобильная */
+@media (max-width: 768px) {
+  .gas-detail-title {
+    font-size: 28px;
+    margin: 20px 0 15px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .gas-detail-title {
+    font-size: 24px;
+    margin: 16px 0 12px;
+  }
+}
+
+/* Изображение газа на детальной странице - мобильная */
+@media (max-width: 768px) {
+  .gas-detail-image-container {
+    max-width: 300px;
+    margin: 0 auto 25px;
+  }
+  
+  .gas-detail-image {
+    border-radius: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .gas-detail-image-container {
+    max-width: 250px;
+    margin: 0 auto 20px;
+  }
+  
+  .gas-detail-image {
+    border-radius: 15px;
+    border-width: 1.5px;
+  }
+}
+
+/* Информация о газе - мобильная */
+@media (max-width: 768px) {
+  .gas-info-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin: 25px 0;
+  }
+  
+  .gas-info-item {
+    padding: 15px;
+    border-radius: 15px;
+  }
+  
+  .gas-info-label {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  
+  .gas-info-value {
+    font-size: 18px;
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 480px) {
+  .gas-info-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin: 20px 0;
+  }
+  
+  .gas-info-item {
+    padding: 12px;
+    border-radius: 12px;
+  }
+  
+  .gas-info-label {
+    font-size: 13px;
+  }
+  
+  .gas-info-value {
+    font-size: 16px;
+  }
+}
+
+/* Описание газа - мобильная */
+@media (max-width: 768px) {
+  .gas-description {
+    font-size: 18px;
+    line-height: 1.6;
+    margin: 25px 0;
+    padding: 0 15px;
+  }
+  
+  .gas-description-title {
+    font-size: 22px;
+    margin-bottom: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .gas-description {
+    font-size: 16px;
+    line-height: 1.5;
+    margin: 20px 0;
+    padding: 0 12px;
+  }
+  
+  .gas-description-title {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+}
+
+/* Характеристики газа - мобильная */
+@media (max-width: 768px) {
+  .gas-properties {
+    margin: 25px 0;
+  }
+  
+  .gas-properties-title {
+    font-size: 22px;
+    margin-bottom: 15px;
+  }
+  
+  .gas-properties-table {
+    font-size: 15px;
+  }
+  
+  .gas-property-row {
+    padding: 10px 15px;
+  }
+  
+  .gas-property-name {
+    font-size: 15px;
+  }
+  
+  .gas-property-value {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .gas-properties {
+    margin: 20px 0;
+  }
+  
+  .gas-properties-title {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+  
+  .gas-properties-table {
+    font-size: 14px;
+    overflow-x: auto;
+  }
+  
+  .gas-property-row {
+    padding: 8px 12px;
+    min-width: 280px;
+  }
+  
+  .gas-property-name {
+    font-size: 14px;
+    min-width: 150px;
+  }
+  
+  .gas-property-value {
+    font-size: 14px;
+  }
+}
+
+/* Применение газа - мобильная */
+@media (max-width: 768px) {
+  .gas-applications {
+    margin: 25px 0;
+  }
+  
+  .gas-applications-title {
+    font-size: 22px;
+    margin-bottom: 15px;
+  }
+  
+  .gas-applications-list {
+    padding-left: 20px;
+  }
+  
+  .gas-application-item {
+    font-size: 16px;
+    margin-bottom: 8px;
+    padding: 8px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .gas-applications {
+    margin: 20px 0;
+  }
+  
+  .gas-applications-title {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+  
+  .gas-applications-list {
+    padding-left: 18px;
+  }
+  
+  .gas-application-item {
+    font-size: 15px;
+    margin-bottom: 6px;
+    padding: 6px 0;
+  }
+}

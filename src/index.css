@@ -34,7 +34,7 @@
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--text);font-family: 'Mariupol', sans-serif;}
 
-.container{max-width:2000px;margin:31px auto 80px;padding:0 16px;}
+.container{max-width:2000px;margin:0px auto 80px;padding:0 16px;}
 
 .btn {display: inline-flex;align-items: center;justify-content: center;width: 203px;height: 54px;border-radius: 999px;font-family: inherit;font-size: 24px;font-weight: 500;text-decoration: none;white-space: nowrap;cursor: pointer;}
 

@@ -1,15 +1,35 @@
-.container.home {
+/* HomePage.css */
+
+.home-with-video {
   max-width: 1200px;
-  margin: 100px auto 80px;
+  margin: 0px auto 80px;
   padding: 0 16px;
   text-align: center;
 }
 
+/* Контейнер для видео */
+.video-container {
+  width: 100%;
+  height: 463px; /* или нужная вам высота */
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 0px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Само видео */
+.home-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Остальные ваши стили остаются */
 .page-head {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  margin: 50px 0 40px;
+  margin: 20px 0 20px;
 }
 
 .page-title {
@@ -31,29 +51,149 @@
   line-height: 1.6;
   margin-bottom: 40px;
   color: var(--muted);
+} 
+.container{
+  margin:0px auto 80px;
+}
+/* Планшеты и маленькие ноутбуки (1024px и меньше) */
+@media (max-width: 1024px) {
+  .home-with-video {
+    max-width: 90%;
+    margin: 0px auto 60px;
+    padding: 0 12px;
+  }
+  
+  .video-container {
+    height: 380px;
+    border-radius: 15px;
+  }
+  
+  .page-title {
+    font-size: 32px;
+  }
+  
+  .home-description {
+    font-size: 18px;
+    margin-bottom: 30px;
+  }
 }
 
-.home-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 250px;
-  height: 60px;
-  border-radius: 999px;
-  font-family: inherit;
-  font-size: 20px;
-  font-weight: 500;
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-  background: var(--chip);
-  color: var(--text);
-  border: 2px solid rgba(255,255,255,.1);
-  transition: all 0.3s;
+/* Планшеты (768px и меньше) */
+@media (max-width: 768px) {
+  .home-with-video {
+    margin: 0px auto 50px;
+    padding: 0 10px;
+  }
+  
+  .video-container {
+    height: 300px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+  
+  .page-head {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 25px 0 15px;
+  }
+  
+  .page-title {
+    grid-column: 1;
+    font-size: 28px;
+    line-height: 1.3;
+  }
+  
+  .home-content {
+    max-width: 90%;
+    padding: 0 5px;
+  }
+  
+  .home-description {
+    font-size: 17px;
+    line-height: 1.5;
+    margin-bottom: 25px;
+  }
+  
+  .container {
+    margin: 0px auto 60px;
+  }
 }
 
-.home-btn:hover {
-  background: var(--accent);
-  color: #0e1e2b;
-  transform: translateY(-2px);
+/* Большие телефоны (480px и меньше) */
+@media (max-width: 480px) {
+  .home-with-video {
+    margin: 0px auto 40px;
+    padding: 0 8px;
+  }
+  
+  .video-container {
+    height: 220px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .page-head {
+    margin: 20px 0 10px;
+    gap: 10px;
+  }
+  
+  .page-title {
+    font-size: 24px;
+    padding: 0 5px;
+  }
+  
+  .home-content {
+    max-width: 100%;
+  }
+  
+  .home-description {
+    font-size: 16px;
+    line-height: 1.4;
+    margin-bottom: 20px;
+    padding: 0 8px;
+  }
+  
+  .container {
+    margin: 0px auto 40px;
+  }
+}
+
+/* Маленькие телефоны (375px и меньше) */
+@media (max-width: 375px) {
+  .video-container {
+    height: 180px;
+    border-radius: 8px;
+  }
+  
+  .page-title {
+    font-size: 22px;
+  }
+  
+  .home-description {
+    font-size: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .home-with-video {
+    margin: 0px auto 30px;
+  }
+}
+
+/* Очень маленькие телефоны (320px и меньше) */
+@media (max-width: 320px) {
+  .video-container {
+    height: 150px;
+    border-radius: 6px;
+  }
+  
+  .page-title {
+    font-size: 20px;
+  }
+  
+  .home-description {
+    font-size: 14px;
+    line-height: 1.3;
+  }
 }
