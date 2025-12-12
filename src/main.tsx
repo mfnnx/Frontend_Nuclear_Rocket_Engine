@@ -5,29 +5,19 @@ import { Provider } from 'react-redux'
 import App from './App'
 import { store } from './store'
 import './index.css'
-
-// PWA обновление
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').then(
-      (registration) => {
-        console.log('SW registered: ', registration)
-      },
-      (error) => {
-        console.log('SW registration failed: ', error)
-      }
-    )
-  })
-}
-
-const basename = import.meta.env.BASE_URL || '/frontend/'
+import {registerSW} from "virtual:pwa-register";
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Provider store={store}>
-      <BrowserRouter basename={basename}>  
+      <BrowserRouter>  
         <App />
       </BrowserRouter>
     </Provider>
   </React.StrictMode>
 )
+
+
+if ("serviceWorker" in navigator) {
+  registerSW()
+}

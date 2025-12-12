@@ -1,7 +1,6 @@
 import type { FC } from 'react'
 import { Container } from 'react-bootstrap'
 import './HomePage.css'
-import { getAsset } from '../utils/path'
 
 const HomePage: FC = () => {
   return (
@@ -10,7 +9,7 @@ const HomePage: FC = () => {
       <div className="video-container">
         <video
           className="home-video"
-          src={getAsset('background.mp4')}
+          src='background.mp4'
           autoPlay
           muted
           loop

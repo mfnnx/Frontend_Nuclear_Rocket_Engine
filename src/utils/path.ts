@@ -5,11 +5,11 @@ declare global {
 }
 
 const isTauri = window.__TAURI__ !== undefined
-const MINIO_URL = 'http://192.168.0.101:9000'
+const MINIO_URL = 'http://192.168.1.108:9000'
 
 export const getAsset = (path: string): string => {
   if (!path || path.trim().length === 0) {
-    return './nothin.jpg'
+    return './default-gas.png'
   }
 
   // Если URL уже полный
@@ -28,11 +28,11 @@ export const getAsset = (path: string): string => {
   }
 
   // Если содержит IP MinIO
-  if (path.includes('192.168.0.101:9000')) {
+  if (path.includes('192.168.1.108:9000')) {
     if (isTauri) {
       return path
     } else {
-      return path.replace('http://192.168.0.101:9000', '/minio')
+      return path.replace('http://192.168.1.108:9000', '/minio')
     }
   }
 

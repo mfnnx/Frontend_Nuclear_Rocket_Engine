@@ -8,7 +8,7 @@ const isTauri = import.meta.env.VITE_TARGET === 'tauri' || import.meta.env.BASE_
 const BACKEND_URL = 'http://localhost:8080'
 const API_PREFIX = isTauri ? `${BACKEND_URL}/api` : '/api'
 
-const MINIO_URL = 'http://192.168.0.106:9000'
+const MINIO_URL = 'http://192.168.1.108:9000'
 // Важно: в веб-режиме используем /minio как прокси
 export const IMAGE_BASE_URL = isTauri ? MINIO_URL : ''
 
@@ -34,7 +34,7 @@ const getValidImageUrl = (imageURL: string | null | undefined): string => {
       }
       
       // Это сетевой IP?
-      if (imageURL.includes('192.168.0.106:9000')) {
+      if (imageURL.includes('192.168.1.108:9000')) {
         if (isTauri) {
           return imageURL
         } else {
