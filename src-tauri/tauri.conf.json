@@ -1,0 +1,25 @@
+{
+  "build": {
+    "beforeDevCommand": "",
+    "devUrl": null,
+    "beforeBuildCommand": "npm run build:tauri",
+    "frontendDist": "../build"
+  },
+  "productName": "NRE",
+  "version": "0.1.0",
+  "identifier": "com.example.nre",
+  "app": {
+    "windows": [
+      {
+        "label":"main",
+        "title": "NRE",
+        "width": 1280,
+        "height": 720,
+        "visible": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; connect-src 'self' http://192.168.1.108:8080 http://192.168.1.108:9000; img-src 'self' http://192.168.1.108:9000 data: blob:;"
+    }
+  }
+}

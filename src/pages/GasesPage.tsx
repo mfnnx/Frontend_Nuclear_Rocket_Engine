@@ -70,7 +70,7 @@ const GasesPage: FC = () => {
               aria-label="К заявке"
             >
               <img
-                src={getAsset('img/rocket.svg')}
+                src="/rocket.svg"
                 className="cart"
                 alt="К заявке"
               />
@@ -79,7 +79,7 @@ const GasesPage: FC = () => {
           ) : (
             <div className="cart-link" aria-disabled="true">
               <img
-                src={getAsset('img/rocket.svg')}
+                src="/rocket.svg"  
                 className="cart"
                 alt="К заявке"
               />
@@ -145,7 +145,7 @@ const GasesPage: FC = () => {
             aria-label="Поиск"
           >
             <img
-              src={getAsset('img/search.png')}
+              src="/search.png"
               alt="Поиск"
               style={{
                 width: '20px',

@@ -10,7 +10,7 @@ const Header: FC = () => {
     <header className="topbar">
       <div className="inner">
         <Link to={ROUTES.HOME} className="brand">
-          <img src="http://localhost:9000/img/logo.svg" className="logo" alt="UNIVERSE" />
+          <img src="/logo.svg" className="logo" alt="UNIVERSE" />
         </Link>
         <nav className="nav">
           <Link 
