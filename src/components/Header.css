@@ -38,6 +38,8 @@
 
 .nav-link:hover {
   color: var(--accent);
+  text-shadow: 0 0 12px #D2F95F;
+  transform: translateY(-2px); 
 }
 
 .nav-link.active {
