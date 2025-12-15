@@ -355,6 +355,7 @@ const ImpulseCalculationPage: FC = () => {
           justifyContent: 'center',
           gap: '24px',
           marginTop: '24px',
+          marginBottom: '32px',
         }}
       >
         {isDraft && (
@@ -381,11 +382,8 @@ const ImpulseCalculationPage: FC = () => {
       </div>
 
       {isFormed && userIsModerator && (
-        <section className="actions" style={{ marginTop: '24px' }}>
-          <div
-            className="moder-actions"
-            style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}
-          >
+        <section className="actions actions--moder">
+          <div className="moder-actions">
             <button
               type="button"
               className="btn-reject"

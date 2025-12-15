@@ -275,8 +275,91 @@ input[type="number"]::-webkit-inner-spin-button {
   margin: 0;
 }
 
+.moder-actions {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom:30px;
+}
+
+/* Базовый стиль как у .btn-mini / "Подробнее" */
+.btn-approve,
+.btn-reject {
+  min-width: 180px;
+  height: 44px;
+  padding: 0 32px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 500;
+  border-width: 2px;
+  border-style: solid;
+  cursor: pointer;
+  outline: none;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.1s ease;
+}
+
+/* Подтвердить — зелёная как сейчас */
+.btn-approve {
+  background-color: #122742;
+  border-color: #26b36d;
+  color: #ffffff;
+}
+
+.btn-approve:hover:enabled {
+  background-color: #1f9258;
+  border-color: #1f9258;
+  box-shadow: 0 0 12px rgba(38, 179, 109, 0.7);
+  transform: translateY(-1px);
+}
+
+/* Отклонить — белая, при hover красная */
+.btn-reject {
+  background-color: #122742;
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}
+
+.btn-reject:hover:enabled {
+  background-color: #ff6b6b;
+  border-color: #ff6b6b;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(255, 107, 107, 0.7);
+  transform: translateY(-1px);
+}
+
+/* disabled состояние */
+.btn-approve:disabled,
+.btn-reject:disabled {
+  opacity: 0.6;
+  cursor: default;
+  box-shadow: none;
+  transform: none;
+}
+
+/* если такого блока нет — добавь */
+.imp-calc {
+  padding-bottom: 10px; /* общий отступ снизу для всей страницы */
+}
+
+/* либо только для этой страницы */
+.imp-calc .actions:last-of-type {
+  margin-bottom: 40px;
+}
 
 
+/* кнопка Подробнее и прочие мини-кнопки */
+
+
+.btn-mini:hover{
+  background:var(--accent);
+  color:var(--bg);
+  box-shadow:0 0 12px var(--accent);
+}
 
 
 
