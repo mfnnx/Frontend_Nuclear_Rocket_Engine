@@ -1,0 +1,327 @@
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:#122742;
+  color:#FFFFFF;
+  font-family:'Mariupol',sans-serif;
+}
+
+h1{margin:0}
+
+.profile-shell{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding:40px 16px 60px;
+  background:#122742;
+  color:#FFFFFF;
+  font-family:'Mariupol',sans-serif;
+}
+
+.profile-card{
+  width:100%;
+  max-width:600px;
+  min-height: 520px;
+  border-radius:30px;
+  box-shadow:0 0 0 2px #324E71;
+  padding:37px 15px 37px;
+  background-color:transparent;
+  margin-top: 40px;
+}
+
+/* Заголовок и пользователь */
+.profile-head{
+  display:flex;
+  flex-direction:column;
+  gap:28px;
+}
+
+.profile-title{
+  margin:0;
+  font-size:40px;
+  font-weight:700;
+  text-align: center;
+}
+
+.profile-user{
+  display:flex;
+  align-items:center;
+  gap:20px;
+}
+
+.profile-avatar{
+  width:90px;
+  height:90px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.profile-avatar-icon{
+  width:90px;
+  height:90px;
+}
+
+.profile-meta{
+  font-size:24px;
+  line-height:1.4;
+}
+
+.profile-name{
+  font-size: 28px;
+  font-weight:600;
+  margin-bottom:2px;
+}
+
+.profile-handle{
+  color:#a9c2d8;
+}
+
+.profile-id{
+  color:#a9c2d8;
+}
+
+/* Разделитель */
+.profile-separator{
+  margin:28px 0 28px;
+  height:2px;
+  background-color:#324E71;
+}
+
+.profile-form{
+  display:flex;
+  flex-direction:column;
+  gap:28px;
+}
+
+.profile-row{
+  display:flex;
+  gap:16px;
+}
+
+.profile-row--double .profile-field{
+  flex:1;
+}
+
+/* логин и пароль на всю ширину */
+.profile-row--full {
+  width: 100%;
+}
+
+.profile-row--full .profile-field {
+  flex: 1;
+}
+
+.profile-field{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+}
+
+.profile-label{
+  position:absolute;
+  top:8px;
+  left:18px;
+  font-size:13px;
+  color:#a9c2d8;
+}
+
+.profile-input{
+  width:100%;
+  height:50px;
+  padding:24px 14px 8px;
+  border-radius:14px;
+  border:2px solid #324E71;
+  background-color:transparent;
+  color:#FFFFFF;
+  font-size:17px;
+  outline:none;
+}
+
+.profile-input:disabled{
+  color:#a9c2d8;
+}
+
+.profile-input:focus{
+  box-shadow:0 0 0 1px #324E71;
+}
+
+/* Подсказка под полем */
+.profile-hint{
+  margin:0;
+  margin-top:4px;      /* небольшой отступ сверху вместо большого снизу */
+  margin-bottom:0;     /* убираем расстояние от поля */
+  font-size:12px;
+  color:#a9c2d8;
+}
+
+
+/* Кнопки */
+.profile-actions{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.profile-actions--edit{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.icon-wrap {
+  position: relative;
+  width: 32px;
+  height: 32px;
+}
+
+.icon {
+  position: absolute;
+  inset: 0;
+  width: 28px;
+  height: 28px;
+  transition: opacity .2s ease;
+  pointer-events: none;
+}
+
+
+.icon-default { opacity: 1; }
+.icon-hover  { opacity: 0; }
+
+.profile-btn:hover .icon-default { opacity: 0; }
+.profile-btn:hover .icon-hover  { opacity: 1; }
+
+.profile-btn{
+  width:215px;
+  height:50px;
+  border-radius:14px;
+  border:2px solid transparent;
+  color:#ffffff;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  cursor:pointer;
+  font-size: 18px;
+  font-weight: 500;
+  transition:background-color .2s ease,color .2s ease,transform .1s ease,box-shadow .2s ease,border-color .2s ease;
+}
+.profile-row--no-gap {
+  flex-direction: column;
+  gap: 4px;            /* маленький отступ между инпутом и текстом */
+}
+
+/* более плотная подсказка */
+.profile-hint--tight {
+  margin: 0;
+}
+
+/* Основная (Редактировать) – синий, как на входе */
+.profile-btn--primary{
+  background-color:#324E71;
+  border-color:#324E71;
+}
+
+.profile-btn--primary:hover{
+  background-color:#d2f95f;
+  color:#12243a;
+  border-color:#D2F95F;
+  box-shadow:0 0 12px #d2f95f;
+  transform:translateY(-2px);
+}
+
+/* Выйти из аккаунта – плотный красный */
+.profile-btn--danger{
+  background-color:#f15b5b;
+  border-color:#f15b5b;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.profile-btn--danger:hover{
+  background-color:#ff7070;
+  color:#12243a;
+  border-color:#ff7070;
+  box-shadow:0 0 12px rgba(241,91,91,.8);
+  transform:translateY(-2px);
+}
+
+.profile-btn--success{
+  background-color:#31c98b;
+  border-color:#31c98b;
+}
+
+.profile-btn--success:hover{
+  background-color:#41dea0;
+  color:#12243a;
+  border-color:#41dea0;
+  box-shadow:0 0 12px rgba(49,201,139,.8);
+  transform:translateY(-2px);
+}
+
+.profile-btn--ghost{
+  background-color: transparent;
+  color: #f27f7f;
+  border-color: #f27f7f;
+  box-shadow: none;
+}
+
+.profile-btn--ghost:hover{
+  background-color: rgba(242, 127, 127, 0.12);
+  color: #ff9a9a;
+  border-color: #ff9a9a;
+  box-shadow: 0 0 12px rgba(242, 127, 127, 0.8);
+  transform: translateY(-2px);
+}
+
+.icon-wrap {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+}
+
+.icon {
+  position: absolute;
+  inset: 0;
+  width: 28px;
+  height: 28px;
+  transition: opacity .2s ease;
+  pointer-events: none;      /* важно */
+}
+
+/* начальное состояние */
+.icon-default { opacity: 1; }
+.icon-hover  { opacity: 0; }
+
+/* при ховере по кнопке – меняем местами */
+.profile-btn:hover .icon-default { opacity: 0; }
+.profile-btn:hover .icon-hover  { opacity: 1; }
+
+
+@media (max-width:600px){
+  .profile-card{
+    height: 700px;
+  }
+
+  .profile-title{
+    font-size:26px;
+  }
+
+  .profile-row{
+    flex-direction:column;
+  }
+
+  .profile-actions{
+    flex-direction:column;
+  }
+
+  .profile-btn{
+    width:100%;
+  }
+}

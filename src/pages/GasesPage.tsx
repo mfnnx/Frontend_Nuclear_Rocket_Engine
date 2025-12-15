@@ -1,61 +1,77 @@
 import type { FC, FormEvent } from 'react'
-import type { Gas, GasFilters } from '../types'
 import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
-import { gasesApi } from '../modules/api'
+import { Link, useNavigate } from 'react-router-dom'
 import './GasesPage.css'
 import { getAsset } from '../utils/path'
 
+import { useAppDispatch, useAppSelector } from '../store/hooks'
+import { getGasesList, setSearchValue } from '../store/slices/gasesSlice'
+import { getCart } from '../store/slices/cartSlice'
+import { addGasToCalculation } from '../store/slices/impulseCalculationSlice'
+import { ROUTES } from '../Routes'
+import type { DsGasDTO } from '../api/Api'
+
 const GasesPage: FC = () => {
-  const [gases, setGases] = useState<Gas[]>([])
-  const [loading, setLoading] = useState(false)
+  const dispatch = useAppDispatch()
+  const navigate = useNavigate()
+
+  const { gases, isLoading, error } = useAppSelector((state) => state.gases)
+  const { isAuthenticated } = useAppSelector((state) => state.user)
+  const { calculation_id, count } = useAppSelector((state) => state.cart)
+
   const [searchQuery, setSearchQuery] = useState('')
-  const [searchTerm, setSearchTerm] = useState('')
   const searchInputRef = useRef<HTMLInputElement>(null)
 
-  // TODO: подставить реальные данные из API/контекста
-  const selectedCount = 0
-  const impulseCalculationId = 1
-
+  // загрузка газов (доступна всем, в т.ч. гостю)
   useEffect(() => {
-    const loadGases = async () => {
-      setLoading(true)
-      try {
-        const filters: GasFilters = {}
-        if (searchTerm) {
-          filters.search = searchTerm
-        }
+    dispatch(getGasesList())
+  }, [dispatch])
 
-        const data = await gasesApi.getGases(filters)
-        setGases(data)
-      } catch (error) {
-        console.error('Error loading gases:', error)
-      } finally {
-        setLoading(false)
-      }
+  // подгружаем корзину для счетчика только после авторизации
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(getCart())
     }
+  }, [isAuthenticated, dispatch])
 
-    loadGases()
-  }, [searchTerm])
-
-  const handleSearchSubmit = (e: FormEvent) => {
+  // локальный поиск → кладём в слайс и дергаем getGasesList
+  const handleSearchSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setSearchTerm(searchQuery)
+    dispatch(setSearchValue(searchQuery))
+    dispatch(getGasesList())
   }
 
   const handleSearchClick = () => {
     if (searchInputRef.current) {
       searchInputRef.current.focus()
     }
-    setSearchTerm(searchQuery)
+    dispatch(setSearchValue(searchQuery))
+    dispatch(getGasesList())
   }
 
-  const handleInputKeyDown = (e: React.KeyboardEvent) => {
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault()
-      setSearchTerm(searchQuery)
+      dispatch(setSearchValue(searchQuery))
+      dispatch(getGasesList())
     }
   }
+
+  const handleAddGas = async (gasId: number) => {
+    if (!isAuthenticated) {
+      navigate(ROUTES.LOGIN)
+      return
+    }
+
+    const res = await dispatch(addGasToCalculation(gasId))
+    if (addGasToCalculation.fulfilled.match(res)) {
+      // обновляем бейдж корзины после успешного добавления
+      dispatch(getCart())
+    }
+  }
+
+  const selectedCount = count
+  const impulseCalculationId = calculation_id ?? 0
 
   return (
     <main className="container gases-page">
@@ -63,7 +79,7 @@ const GasesPage: FC = () => {
         <h1 className="page-title">Рабочее тело</h1>
 
         <div className="cart-wrap">
-          {selectedCount > 0 ? (
+          {isAuthenticated && selectedCount > 0 && impulseCalculationId ? (
             <Link
               to={`/impulse_calculation/${impulseCalculationId}`}
               className="cart-link"
@@ -83,7 +99,7 @@ const GasesPage: FC = () => {
                 className="cart"
                 alt="К заявке"
               />
-              <span className="count">{selectedCount}</span>
+              {isAuthenticated && <span className="count">{selectedCount}</span>}
             </div>
           )}
         </div>
@@ -159,14 +175,21 @@ const GasesPage: FC = () => {
         </form>
       </div>
 
-      {loading ? (
+      {error && !isLoading && (
+        <div className="gases-loading text-center">{error}</div>
+      )}
+
+      {isLoading ? (
         <div className="gases-loading text-center">Загрузка...</div>
       ) : (
         <div className="gases-cards-rocket d-flex flex-wrap justify-content-center mx-auto">
-          {gases.map((gas) => (
+          {gases.map((gas: DsGasDTO) => (
             <article
               key={gas.id}
-              className="gases-card-rocket d-flex flex-column align-items-center"
+              className={
+                'gases-card-rocket d-flex flex-column align-items-center' +
+                (isAuthenticated ? ' gases-card-rocket--auth' : '')
+              }
             >
               <div
                 className="gases-thumb-wrap"
@@ -180,7 +203,14 @@ const GasesPage: FC = () => {
               >
                 <img
                   className="gases-thumb"
-                  src={getAsset(gas.imageURL || '')}
+                  src={
+                    gas.image_url
+                      ? gas.image_url.replace(
+                          'http://localhost:9000',
+                          '/minio',
+                        )
+                      : getAsset('images/default-gas.png')
+                  }
                   alt={gas.title}
                   style={{
                     width: '100%',
@@ -195,9 +225,11 @@ const GasesPage: FC = () => {
                   }}
                 />
               </div>
+
               <div className="gases-card-info text-center flex-grow-1 d-flex flex-direction-column justify-content-center">
                 <div className="gases-card-title">{gas.title}</div>
               </div>
+
               <div className="gases-actions w-100 mt-auto">
                 <Link
                   className="gases-btn gases-btn-ghost w-100"
@@ -205,11 +237,21 @@ const GasesPage: FC = () => {
                 >
                   К описанию
                 </Link>
+
+                {isAuthenticated && (
+                  <button
+                    type="button"
+                    className="gases-btn gases-btn-ghost w-100"
+                    onClick={() => handleAddGas(gas.id!)}
+                  >
+                    Добавить
+                  </button>
+                )}
               </div>
             </article>
           ))}
 
-          {gases.length === 0 && !loading && (
+          {gases.length === 0 && !isLoading && (
             <div className="gases-no-gases text-center">
               <h3>Газы не найдены</h3>
               <p>Попробуйте изменить поисковый запрос</p>

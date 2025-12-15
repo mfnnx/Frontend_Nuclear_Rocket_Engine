@@ -32,3 +32,11 @@
   color: var(--muted);
   margin: 0 8px;
 }
+.breadcrumbs {
+  position: relative;
+  z-index: 10;          /* поднять над контентом */
+}
+
+.breadcrumbs a {
+  pointer-events: auto;
+}

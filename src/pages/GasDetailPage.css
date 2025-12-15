@@ -43,6 +43,14 @@
 
 .thumb{width:100%;height:100%;object-fit:cover;display:block;} 
 /* Адаптивность для детальной страницы газа */
+.gas {
+  position: relative;
+}
+
+.panel {
+  position: relative;
+  z-index: 1;           /* ниже, чем .breadcrumbs */
+}
 
 /* Контейнер детальной страницы газа */
 @media (max-width: 768px) {

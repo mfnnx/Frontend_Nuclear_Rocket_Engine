@@ -1,27 +1,31 @@
-// src/store/slices/filterSlice.ts
 import { createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
-import type { RootState } from '../index'
 
-// Определяем интерфейс прямо здесь
 interface FilterState {
   searchTerm: string
+  filterType: string
 }
 
 const initialState: FilterState = {
   searchTerm: '',
+  filterType: 'all',
 }
 
-export const filterSlice = createSlice({
+const filterSlice = createSlice({
   name: 'filter',
   initialState,
   reducers: {
-    setSearchTerm: (state, action: PayloadAction<string>) => {
+    setSearchTerm: (state, action) => {
       state.searchTerm = action.payload
+    },
+    setFilterType: (state, action) => {
+      state.filterType = action.payload
+    },
+    clearFilters: (state) => {
+      state.searchTerm = ''
+      state.filterType = 'all'
     },
   },
 })
 
-export const { setSearchTerm } = filterSlice.actions
-export const selectSearchTerm = (state: RootState) => state.filter.searchTerm
+export const { setSearchTerm, setFilterType, clearFilters } = filterSlice.actions
 export default filterSlice.reducer

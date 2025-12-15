@@ -29,7 +29,7 @@
           },
         },
       '/minio': {
-        target: 'http://192.168.1.108:9000',
+        target: 'http://192.168.56.1:9000',
         changeOrigin: true,
         secure: false,
         rewrite: (p) => p.replace(/^\/minio/, ''),

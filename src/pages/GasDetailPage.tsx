@@ -1,17 +1,21 @@
 import type { FC } from 'react'
-import type { Gas } from '../types'
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate} from 'react-router-dom'
-import { gasesApi } from '../modules/api'
-import BreadCrumbs from '../components/BreadCrumbs'
-import { ROUTES, ROUTE_LABELS } from '../Routes'
+import { useParams, useNavigate } from 'react-router-dom'
+
 import './GasDetailPage.css'
+import BreadCrumbs from '../components/BreadCrumbs'
+import { ROUTES } from '../Routes'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
+import { getGasesList } from '../store/slices/gasesSlice'
+import type { DsGasDTO } from '../api/Api'
 
 const GasDetailPage: FC = () => {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [gas, setGas] = useState<Gas | null>(null)
-  const [loading, setLoading] = useState(true)
+  const dispatch = useAppDispatch()
+
+  const { gases, isLoading } = useAppSelector((state) => state.gases)
+  const [gas, setGas] = useState<DsGasDTO | null>(null)
 
   useEffect(() => {
     if (!id || isNaN(Number(id))) {
@@ -19,34 +23,24 @@ const GasDetailPage: FC = () => {
       return
     }
 
-    let isMounted = true
+    // если газы ещё не загружены – подгружаем
+    if (!gases.length) {
+      dispatch(getGasesList())
+    }
+  }, [id, gases.length, dispatch, navigate])
 
-    const loadGas = async () => {
-      try {
-        const gasData = await gasesApi.getGasById(Number(id))
-        if (isMounted) {
-          setGas(gasData)
-        }
-      } catch (error) {
-        console.error('Error loading gas:', error)
-        if (isMounted) {
-          navigate(ROUTES.GASES)
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false)
-        }
+  useEffect(() => {
+    if (id && gases.length) {
+      const found = gases.find((g) => g.id === Number(id)) || null
+      if (!found) {
+        navigate(ROUTES.GASES)
+      } else {
+        setGas(found)
       }
     }
+  }, [id, gases, navigate])
 
-    loadGas()
-
-    return () => {
-      isMounted = false
-    }
-  }, [id, navigate])
-
-  if (loading) {
+  if (isLoading || (!gas && !gases.length)) {
     return (
       <main className="container gas">
         <div className="loading">Загрузка...</div>
@@ -62,21 +56,26 @@ const GasDetailPage: FC = () => {
     <main className="container gas">
       <BreadCrumbs
         crumbs={[
-          { label: ROUTE_LABELS.GASES, path: ROUTES.GASES },
-          { label: gas.title }
+          { label: 'Рабочие газы', path: ROUTES.GASES },
+          { label: gas.title || 'Газ' }, // последний без path – текущая страница
         ]}
       />
-      
+
+
       <section className="panel">
         <div className="cards-rocket">
           <article className="card-rocket">
             <div className="thumb-wrap">
-              <img 
-                className="thumb" 
-                src={gas.imageURL} 
+              <img
+                className="thumb"
+                src={
+                  gas.image_url
+                    ? gas.image_url.replace('http://localhost:9000', '/minio')
+                    : '/images/default-gas.png'
+                }
                 alt={gas.title}
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/images/default-gas.png'
+                  ;(e.target as HTMLImageElement).src = '/images/default-gas.png'
                 }}
               />
             </div>
@@ -86,12 +85,8 @@ const GasDetailPage: FC = () => {
           </article>
         </div>
 
-        <article className="copy">
-          {gas.description}
-        </article>
+        <article className="copy">{gas.description}</article>
       </section>
-      
-
     </main>
   )
 }

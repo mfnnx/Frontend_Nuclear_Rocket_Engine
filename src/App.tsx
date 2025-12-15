@@ -5,20 +5,36 @@ import Header from './components/Header'
 import HomePage from './pages/HomePage'
 import GasesPage from './pages/GasesPage'
 import GasDetailPage from './pages/GasDetailPage'
+import AuthPage from './pages/AuthPage'
+import RegisterPage from './pages/RegisterPage'
+import ProfilePage from './pages/ProfilePage'
+import ImpulseCalculationPage from './pages/ImpulseCalculationPage'
+import ImpulseCalculationListPage from './pages/ImpulseCalculationListPage'
 import './App.css'
 
 const App: FC = () => {
   return (
-    <div className="app">
+    <>
       <Header />
-      <main style={{ paddingTop: '80px' }}>
-        <Routes>
-          <Route path={ROUTES.HOME} element={<HomePage />} />
-          <Route path={ROUTES.GASES} element={<GasesPage />} />
-          <Route path={ROUTES.GAS_DETAIL} element={<GasDetailPage />} />
-        </Routes>
-      </main>
-    </div>
+      <Routes>
+        {/* Главная страница */}
+        <Route path={ROUTES.HOME} element={<HomePage />} />
+
+        {/* Страницы пользователя */}
+        <Route path={ROUTES.GASES} element={<GasesPage />} />
+        <Route path="/gases/:id" element={<GasDetailPage />} />
+        <Route path="/impulse_calculation/:id" element={<ImpulseCalculationPage />} />
+        <Route
+          path={ROUTES.IMPULSE_CALCULATION_LIST}
+          element={<ImpulseCalculationListPage />}
+        />
+
+        {/* Аутентификация и профиль */}
+        <Route path={ROUTES.LOGIN} element={<AuthPage />} />
+        <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
+        <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
+      </Routes>
+    </>
   )
 }
 
