@@ -1,45 +1,32 @@
-// ТОЧНО РАБОЧИЙ Service Worker
-console.log('=== SW SCRIPT LOADED ===')
+// Минимальный рабочий Service Worker
+const APP_VERSION = 'v1.0.0'
 
-self.addEventListener('install', function(event) {
-  console.log('[SW] Install event')
-  // Активируем сразу без ожидания
+// 1. Установка
+self.addEventListener('install', (event) => {
+  console.log(`Service Worker ${APP_VERSION}: Устанавливается`)
+  // Пропускаем ожидание и сразу активируемся
   event.waitUntil(self.skipWaiting())
 })
 
-self.addEventListener('activate', function(event) {
-  console.log('[SW] Activate event')
-  // Берем контроль над всеми клиентами
-  event.waitUntil(
-    Promise.all([
-      self.clients.claim(),
-      // Очищаем кэши если нужно
-      caches.keys().then(cacheNames => {
-        return Promise.all(
-          cacheNames.map(cacheName => {
-            return caches.delete(cacheName)
-          })
-        )
-      })
-    ])
-  )
+// 2. Активация
+self.addEventListener('activate', (event) => {
+  console.log(`Service Worker ${APP_VERSION}: Активируется`)
+  // Немедленно берем контроль над страницами
+  event.waitUntil(clients.claim().then(() => {
+    console.log('✅ Service Worker активен и контролирует страницы')
+  }))
 })
 
-self.addEventListener('fetch', function(event) {
-  // ВАЖНО: всегда возвращаем ответ!
-  event.respondWith(
-    fetch(event.request).catch(() => {
-      // Fallback если сеть недоступна
-      return new Response('Offline')
-    })
-  )
+// 3. Fetch
+self.addEventListener('fetch', (event) => {
+  console.log("Fetch:", event.request.url)
+  // Можно вернуть fetch(event.request) для пропуска через SW
 })
 
-self.addEventListener('message', function(event) {
-  console.log('[SW] Message:', event.data)
-  if (event.data && event.data.type === 'SKIP_WAITING') {
+// 4. Для принудительной активации
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    console.log('Получена команда SKIP_WAITING')
     self.skipWaiting()
   }
 })
-
-console.log('[SW] Ready to work!')
