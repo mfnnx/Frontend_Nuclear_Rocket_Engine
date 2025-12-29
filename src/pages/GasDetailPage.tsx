@@ -71,11 +71,11 @@ const GasDetailPage: FC = () => {
                 src={
                   gas.image_url
                     ? gas.image_url.replace('http://localhost:9000', '/minio')
-                    : '/images/default-gas.png'
+                    : 'defaultgas.png'
                 }
                 alt={gas.title}
                 onError={(e) => {
-                  ;(e.target as HTMLImageElement).src = '/images/default-gas.png'
+                  ;(e.target as HTMLImageElement).src = '/defaultgas.png'
                 }}
               />
             </div>

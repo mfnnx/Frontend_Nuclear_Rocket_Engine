@@ -19,6 +19,7 @@ export interface DsGasCreateRequest {
   description: string;
   image_url?: string;
   title: string;
+  molar_mass?: number;
 }
 
 export interface DsGasDTO {
@@ -26,12 +27,14 @@ export interface DsGasDTO {
   id?: number;
   image_url?: string;
   title?: string;
+  molar_mass?: number;
 }
 
 export interface DsGasUpdateRequest {
   description?: string;
   image_url?: string;
   title?: string;
+  molar_mass?: number;
 }
 
 export interface DsImpulseCalculationDTO {
@@ -489,10 +492,15 @@ export class Api<
         from?: string;
         /** Конечная дата (YYYY-MM-DD) */
         to?: string;
+        
+        // --- [ДОБАВИЛ page и limit] ---
+        page?: number;
+        limit?: number;
       },
       params: RequestParams = {},
     ) =>
-      this.request<DsImpulseCalculationDTO[], object>({
+      // --- [ИЗМЕНИЛ ТИП ОТВЕТА] ---
+      this.request<{ items: DsImpulseCalculationDTO[], total: number, time_ms: number }, object>({
         path: `/impulse_calculations`,
         method: "GET",
         query: query,

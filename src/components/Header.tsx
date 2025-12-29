@@ -10,6 +10,7 @@ const Header: FC = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
 
+  // Достаем is_moderator из стейта
   const { isAuthenticated, login } = useAppSelector((state) => state.user)
 
   const handleLogout = async () => {
@@ -24,13 +25,13 @@ const Header: FC = () => {
       <div className="inner">
         <Link to={ROUTES.HOME} className="brand">
           <img
-            src="http://localhost:9000/img/logo.svg"
+            src="/logo.svg"
             className="logo"
             alt="UNIVERSE"
           />
         </Link>
 
-        {/* левое меню: главная, газы, мои заявки */}
+        {/* ЛЕВОЕ МЕНЮ */}
         <nav className="nav">
           <Link
             to={ROUTES.HOME}
@@ -44,7 +45,9 @@ const Header: FC = () => {
           >
             {ROUTE_LABELS.GASES}
           </Link>
-          {isAuthenticated && (
+
+          {/* Ссылка "Мои заявки" для авторизованных, но НЕ для модераторов */}
+          {isAuthenticated  && (
             <Link
               to={ROUTES.IMPULSE_CALCULATION_LIST}
               className={
@@ -56,9 +59,23 @@ const Header: FC = () => {
               {ROUTE_LABELS.IMPULSE_CALCULATION_LIST}
             </Link>
           )}
+
+          {/* Ссылка "Админка" ТОЛЬКО для модераторов */}
+          {isAuthenticated && (
+            <Link
+              to={ROUTES.ADMIN_GASES}
+              className={
+                isActive(ROUTES.ADMIN_GASES)
+                  ? 'nav-link active'
+                  : 'nav-link'
+              }
+            >
+              Редактирование газов
+            </Link>
+          )}
         </nav>
 
-        {/* справа: username (ссылкой на профиль) + выйти */}
+        {/* ПРАВОЕ МЕНЮ: Профиль / Выход */}
         <div className="nav">
           {isAuthenticated ? (
             <>

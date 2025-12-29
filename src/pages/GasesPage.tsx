@@ -7,7 +7,7 @@ import { getAsset } from '../utils/path'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { getGasesList, setSearchValue } from '../store/slices/gasesSlice'
 import { getCart } from '../store/slices/cartSlice'
-import { addGasToCalculation } from '../store/slices/impulseCalculationSlice'
+import { addGasToCalculation } from '../store/slices/impulseCalculationSlice.ts'
 import { ROUTES } from '../Routes'
 import type { DsGasDTO } from '../api/Api'
 
@@ -86,7 +86,7 @@ const GasesPage: FC = () => {
               aria-label="К заявке"
             >
               <img
-                src={getAsset('img/rocket.svg')}
+                src={getAsset('rocket.svg')}
                 className="cart"
                 alt="К заявке"
               />
@@ -95,7 +95,7 @@ const GasesPage: FC = () => {
           ) : (
             <div className="cart-link" aria-disabled="true">
               <img
-                src={getAsset('img/rocket.svg')}
+                src={getAsset('rocket.svg')}
                 className="cart"
                 alt="К заявке"
               />
@@ -161,7 +161,7 @@ const GasesPage: FC = () => {
             aria-label="Поиск"
           >
             <img
-              src={getAsset('img/search.png')}
+              src={getAsset('search.png')}
               alt="Поиск"
               style={{
                 width: '20px',
@@ -209,7 +209,7 @@ const GasesPage: FC = () => {
                           'http://localhost:9000',
                           '/minio',
                         )
-                      : getAsset('images/default-gas.png')
+                      : getAsset('defaultgas.png')
                   }
                   alt={gas.title}
                   style={{
@@ -220,7 +220,7 @@ const GasesPage: FC = () => {
                   }}
                   onError={(e) => {
                     ;(e.target as HTMLImageElement).src = getAsset(
-                      'images/default-gas.png',
+                      'defaultgas.png',
                     )
                   }}
                 />

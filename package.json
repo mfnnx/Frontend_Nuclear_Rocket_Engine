@@ -21,6 +21,7 @@
     "gh-pages": "^6.3.0",
     "react": "^19.2.0",
     "react-bootstrap": "^2.10.10",
+    "react-bootstrap-icons": "^1.11.6",
     "react-dom": "^19.2.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.10.1",

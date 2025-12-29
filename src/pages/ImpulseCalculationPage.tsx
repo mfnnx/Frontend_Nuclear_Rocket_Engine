@@ -2,18 +2,18 @@ import type { FC, ChangeEvent, KeyboardEvent } from 'react'
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
-import {
-  getImpulseCalculation,
-  updateImpulseCalculation,
-  deleteGasFromCalculation,
-  updateGasInCalculation,
-  deleteImpulseCalculation,
-  clearCalculation,
-  formImpulseCalculation,
-  resolveImpulseCalculation,
-} from '../store/slices/impulseCalculationSlice'
 import { ROUTES } from '../Routes'
 import './ImpulseCalculationPage.css'
+import { api } from '../api'
+
+interface GasField {
+  gas_id: number
+  title: string
+  description: string
+  image_url: string | null
+  mass: number
+  impulse: number
+}
 
 const STATUS_DRAFT = 'DRAFT'
 const STATUS_FORMED = 'FORMED'
@@ -24,39 +24,38 @@ const ImpulseCalculationPage: FC = () => {
   const navigate = useNavigate()
 
   const { calculation, fields, temperature, isLoading, isUpdating, error } =
-    useAppSelector((state) => state.impulseCalculation)
-  const { isAuthenticated, isModerator } = useAppSelector((state) => state.user)
+    useAppSelector((state: any) => state.impulseCalculation)
+  const { isAuthenticated, isModerator } = useAppSelector((state: any) => state.user)
 
-  // температура как строка
-  const [tempValue, setTempValue] = useState<string>(
-    temperature !== null && temperature !== undefined ? String(temperature) : '',
-  )
-
-  // редактируемая строка массы
+  const [tempValue, setTempValue] = useState<string>('')
   const [editingRow, setEditingRow] = useState<number | null>(null)
   const [editValues, setEditValues] = useState<{ mass?: string }>({})
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !id) {
       navigate(ROUTES.LOGIN)
       return
     }
+    loadCalculation()
+  }, [id, isAuthenticated])
 
-    if (id) {
-      dispatch(getImpulseCalculation(Number(id)))
+  const loadCalculation = async () => {
+    if (!id) return
+    dispatch({ type: 'impulseCalculation/setLoading', payload: true })
+    dispatch({ type: 'impulseCalculation/setError', payload: null })
+    
+    try {
+      const response = await api.impulseCalculations.impulseCalculationsDetail(Number(id))
+      dispatch({ type: 'impulseCalculation/setCalculation', payload: response.data })
+    } catch (err: any) {
+      dispatch({ type: 'impulseCalculation/setError', payload: err.response?.data?.detail || 'Расчет не найден' })
+    } finally {
+      dispatch({ type: 'impulseCalculation/setLoading', payload: false })
     }
-
-    return () => {
-      dispatch(clearCalculation())
-    }
-  }, [id, isAuthenticated, dispatch, navigate])
+  }
 
   useEffect(() => {
-    setTempValue(
-      temperature !== null && temperature !== undefined
-        ? String(temperature)
-        : '',
-    )
+    setTempValue(temperature ? String(temperature) : '')
   }, [temperature])
 
   const handleTemperatureChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -64,103 +63,97 @@ const ImpulseCalculationPage: FC = () => {
   }
 
   const saveTemperature = async () => {
-    if (!id) return
-    const raw = tempValue.trim()
-    if (raw === '') return
-
-    const numeric = Number(raw.replace(',', '.'))
+    if (!id || !tempValue.trim()) return
+    const numeric = Number(tempValue.replace(',', '.'))
     if (Number.isNaN(numeric)) return
 
-    await dispatch(
-      updateImpulseCalculation({
-        id: Number(id),
-        temperature: numeric,
-      }),
-    )
-
-    await dispatch(getImpulseCalculation(Number(id)))
-  }
-
-  const handleTemperatureKeyDown = async (
-    e: KeyboardEvent<HTMLInputElement>,
-  ) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      await saveTemperature()
-    }
-  }
-
-  const handleTemperatureBlur = async () => {
-    await saveTemperature()
-  }
-
-  const handleDeleteGas = (gasId?: number) => {
-    if (id && gasId) {
-      dispatch(deleteGasFromCalculation({ id: Number(id), gasId }))
+    dispatch({ type: 'impulseCalculation/setUpdating', payload: true })
+    try {
+      await api.impulseCalculations.impulseCalculationsUpdate(Number(id), { temperature: numeric })
+      await loadCalculation()
+    } catch (err: any) {
+      dispatch({ type: 'impulseCalculation/setError', payload: 'Ошибка сохранения температуры' })
     }
   }
 
   const handleSaveRow = async (gasId: number) => {
     if (!id) return
+    const fieldIndex = fields.findIndex((f: GasField) => f.gas_id === gasId)
+    if (fieldIndex === -1) return
 
-    const raw = (editValues.mass ?? '').trim()
-    if (raw === '') {
+    let massToSave: number
+    const isEditingThisRow = editingRow === fieldIndex
+
+    if (isEditingThisRow && editValues.mass) {
+      const raw = editValues.mass.trim()
+      if (!raw) return
+      massToSave = Number(raw.replace(',', '.'))
+      if (Number.isNaN(massToSave)) return
+    } else {
+      massToSave = fields[fieldIndex].mass || 0
+    }
+
+    dispatch({ type: 'impulseCalculation/setUpdating', payload: true })
+    try {
+      await api.impulseCalculations.gasesUpdate(Number(id), gasId, { mass: massToSave })
+      await loadCalculation()
+    } finally {
       setEditingRow(null)
       setEditValues({})
-      return
+      dispatch({ type: 'impulseCalculation/setUpdating', payload: false })
     }
-
-    const numeric = Number(raw.replace(',', '.'))
-    if (Number.isNaN(numeric)) {
-      return
-    }
-
-    await dispatch(
-      updateGasInCalculation({
-        id: Number(id),
-        gasId,
-        mass: numeric,
-        impulse: undefined, // импульс считает сервер
-      }),
-    )
-
-    await dispatch(getImpulseCalculation(Number(id)))
-
-    setEditingRow(null)
-    setEditValues({})
   }
 
-  const handleDeleteCalculation = () => {
+  const handleDeleteGas = async (gasId: number) => {
     if (!id) return
-    dispatch(deleteImpulseCalculation(Number(id)))
-    navigate(ROUTES.GASES)
+    dispatch({ type: 'impulseCalculation/setUpdating', payload: true })
+    try {
+      await api.impulseCalculations.gasesDelete(Number(id), gasId)
+      await loadCalculation()
+    } catch (err: any) {
+      dispatch({ type: 'impulseCalculation/setError', payload: 'Ошибка удаления газа' })
+    }
+  }
+
+  const handleDeleteCalculation = async () => {
+    if (!id) return
+    dispatch({ type: 'impulseCalculation/setUpdating', payload: true })
+    try {
+      await api.impulseCalculations.impulseCalculationsDelete(Number(id))
+      navigate(ROUTES.GASES)
+    } finally {
+      dispatch({ type: 'impulseCalculation/setUpdating', payload: false })
+    }
   }
 
   const handleFormCalculation = async () => {
     if (!id) return
-    await dispatch(formImpulseCalculation(Number(id)))
-    await dispatch(getImpulseCalculation(Number(id)))
+    dispatch({ type: 'impulseCalculation/setUpdating', payload: true })
+    try {
+      await api.impulseCalculations.formUpdate(Number(id))
+      await loadCalculation()
+    } catch (err: any) {
+      dispatch({ type: 'impulseCalculation/setError', payload: 'Ошибка формирования' })
+    }
   }
 
-  const handleResolveCalculationClick = async (
-    action: 'COMPLETED' | 'REJECTED',
-  ) => {
+  const handleResolveCalculationClick = async (action: 'COMPLETED' | 'REJECTED') => {
     if (!id) return
-    await dispatch(
-      resolveImpulseCalculation({
-        id: Number(id),
-        status: action,
-      }),
-    )
-    await dispatch(getImpulseCalculation(Number(id)))
+    dispatch({ type: 'impulseCalculation/setUpdating', payload: true })
+    try {
+      await api.impulseCalculations.resolveUpdate(Number(id), { status: action })
+      await loadCalculation()
+    } catch (err: any) {
+      dispatch({ type: 'impulseCalculation/setError', payload: 'Ошибка обработки' })
+    }
   }
 
-  if (!isAuthenticated) return null
-
-  if (isLoading) {
+  if (!isAuthenticated || isLoading) {
     return (
       <main className="container">
-        <p style={{ textAlign: 'center' }}>Загрузка расчета...</p>
+        <p style={{ textAlign: 'center' }}>
+          {isLoading ? 'Загрузка...' : 'Не авторизован'}
+        </p>
       </main>
     )
   }
@@ -181,8 +174,8 @@ const ImpulseCalculationPage: FC = () => {
     )
   }
 
-  const totalMass = fields.reduce((sum, f) => sum + (f.mass || 0), 0)
-  const totalImpulse = fields.reduce((sum, f) => sum + (f.impulse || 0), 0)
+  const totalMass = fields.reduce((sum: number, f: GasField) => sum + f.mass, 0)
+  const totalImpulse = fields.reduce((sum: number, f: GasField) => sum + f.impulse, 0)
 
   const status = calculation.status
   const isDraft = status === STATUS_DRAFT
@@ -193,25 +186,39 @@ const ImpulseCalculationPage: FC = () => {
     <main className="container">
       <h1 className="page-title">Составление заявки</h1>
 
-      {/* Температура */}
-      <label className="inline">
-        <span>Температура топлива в реакторе:</span>
-        <div className="input-rect temp-rect">
-          <input
-            className="chip-input-inner"
-            type="number"
-            placeholder="например, 2800"
-            value={tempValue}
-            onChange={handleTemperatureChange}
-            onBlur={handleTemperatureBlur}
-            onKeyDown={handleTemperatureKeyDown}
-            disabled={!isDraft}
-          />
-          <span className="unit">K</span>
-        </div>
-      </label>
+      <div style={{ 
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        gap: '20px', marginBottom: '10px', width: '100%'
+      }}>
+        <label className="inline" style={{ marginBottom: 0 }}>
+          <span>Температура топлива в реакторе:</span>
+          <div className="input-rect temp-rect">
+            <input
+              className="chip-input-inner"
+              type="number"
+              placeholder="например, 2800"
+              value={tempValue}
+              onChange={handleTemperatureChange}
+              onBlur={saveTemperature}
+              onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => 
+                e.key === 'Enter' && saveTemperature()}
+              disabled={!isDraft || isUpdating}
+            />
+            <span className="unit">K</span>
+          </div>
+        </label>
+        {isDraft && (
+          <button
+            className="btn-mini"
+            onClick={saveTemperature}
+            disabled={isUpdating}
+            style={{ cursor: isUpdating ? 'wait' : 'pointer', opacity: isUpdating ? 0.7 : 1 }}
+          >
+            Сохранить
+          </button>
+        )}
+      </div>
 
-      {/* Метрики */}
       <div className="metrics">
         <div className="metric-box-m">
           <div className="metric-title">
@@ -220,161 +227,99 @@ const ImpulseCalculationPage: FC = () => {
         </div>
         <div className="metric-box-i">
           <div className="metric-title">
-            Импульс ядерного ракетного двигателя:{' '}
-            <strong>{totalImpulse.toFixed(3)} Н·с</strong>
+            Импульс ядерного ракетного двигателя: <strong>{totalImpulse.toFixed(3)} Н·с</strong>
           </div>
         </div>
       </div>
 
-      {/* Список газов */}
       <section className="rows">
-        {fields.map((field, idx) => {
-          const isEditing = editingRow === idx
-
-          return (
-            <article className="row" key={`${field.gas_id}-${idx}`}>
-              <div className="elem-card">
-                <img
-                  className="elem-img"
-                  src={field.image_url || '/images/default-gas.png'}
-                  alt={field.title}
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement
-                    target.src = '/images/default-gas.png'
-                    target.onerror = null
-                  }}
-                />
-              </div>
-
-              <div className="row-left">
-                <div className="row-head">
-                  <div className="row-title">
-                    <div className="title">{field.title}</div>
-                  </div>
-                  <Link className="btn-mini" to={`/gases/${field.gas_id}`}>
-                    Подробнее
-                  </Link>
-                </div>
-
-                <div className="row_specs">
-                  {/* Масса */}
-                  <div className="field">
-                    <div
-                      className="input-rect"
-                      onClick={() => {
-                        if (!isDraft) return
-                        if (!isEditing) {
-                          setEditingRow(idx)
-                          setEditValues({
-                            mass:
-                              field.mass !== null && field.mass !== undefined
-                                ? String(field.mass)
-                                : '',
-                          })
-                        }
-                      }}
-                    >
-                      {isEditing ? (
-                        <>
-                          <input
-                            type="number"
-                            className="value"
-                            value={editValues.mass ?? ''}
-                            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                              setEditValues({
-                                mass: e.target.value,
-                              })
-                            }
-                            onKeyDown={(
-                              e: KeyboardEvent<HTMLInputElement>,
-                            ) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault()
-                                handleSaveRow(field.gas_id)
-                              }
-                            }}
-                          />
-                          <span className="unit">т</span>
-                        </>
-                      ) : (
-                        <>
-                          <input
-                            type="text"
-                            className="value"
-                            value={
-                              field.mass !== undefined && field.mass !== null
-                                ? String(field.mass)
-                                : ''
-                            }
-                            readOnly
-                          />
-                          <span className="unit">т</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Импульс — только с сервера */}
-                  <div className="field">
-                    <div className="input-rect readonly">
-                      <div className="value" aria-label="Импульс Н·с">
-                        {field.impulse}
-                      </div>
-                      <span className="unit">Н·с</span>
-                    </div>
-                  </div>
-
-                  {/* Удаление газа */}
+        {fields.map((field: GasField, idx: number) => (
+          <article className="row" key={`${field.gas_id}-${idx}`}>
+            <div className="elem-card">
+              <img
+                className="elem-img"
+                src={field.image_url || '/defaultgas.png'}
+                alt={field.title}
+                onError={(e: any) => { e.target.src = '/defaultgas.png' }}
+              />
+            </div>
+            <div className="row-left">
+              <div className="row-head">
+                <div className="row-title"><div className="title">{field.title}</div></div>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <Link className="btn-mini" to={`/gases/${field.gas_id}`}>Подробнее</Link>
                   {isDraft && (
-                    <button
-                      className="trash"
-                      aria-label="Удалить"
-                      onClick={() => handleDeleteGas(field.gas_id)}
+                    <button 
+                      className="btn-mini"
+                      onClick={() => handleSaveRow(field.gas_id)}
                       disabled={isUpdating}
-                      type="button"
                     >
-                      <img src="/trash 1 (1).svg" alt="Удалить" />
+                      Сохранить
                     </button>
                   )}
                 </div>
               </div>
-            </article>
-          )
-        })}
-
-        {fields.length === 0 && (
-          <p style={{ textAlign: 'center' }}>Нет газов в расчете</p>
-        )}
+              <div className="row_specs">
+                <div className="field">
+                  <div className="input-rect" onClick={() => {
+                    if (!isDraft || editingRow === idx || isUpdating) return
+                    setEditingRow(idx)
+                    setEditValues({ mass: String(field.mass) })
+                  }}>
+                    {editingRow === idx ? (
+                      <>
+                        <input
+                          type="number"
+                          className="value"
+                          value={editValues.mass ?? ''}
+                          onChange={(e: ChangeEvent<HTMLInputElement>) => 
+                            setEditValues({ mass: e.target.value })}
+                          onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => 
+                            e.key === 'Enter' && handleSaveRow(field.gas_id)}
+                        />
+                        <span className="unit">т</span>
+                      </>
+                    ) : (
+                      <>
+                        <input type="text" className="value" value={field.mass} readOnly />
+                        <span className="unit">т</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <div className="field">
+                  <div className="input-rect readonly">
+                    <div className="value">{field.impulse}</div>
+                    <span className="unit">Н·с</span>
+                  </div>
+                </div>
+                {isDraft && (
+                  <button
+                    className="trash"
+                    onClick={() => handleDeleteGas(field.gas_id)}
+                    disabled={isUpdating}
+                  >
+                    <img src="/trash 1 (1).svg" alt="Удалить" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </article>
+        ))}
+        {fields.length === 0 && <p style={{ textAlign: 'center' }}>Нет газов в расчете</p>}
       </section>
 
-      {/* Кнопки управления заявкой */}
-      <div
-        className="actions"
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '24px',
-          marginTop: '24px',
-          marginBottom: '32px',
-        }}
-      >
+      <div className="actions" style={{ display: 'flex', justifyContent: 'center', gap: '24px', margin: '24px 0' }}>
         {isDraft && (
           <>
             <button
-              type="button"
               className="btn-delete"
-              disabled={isUpdating || fields.length === 0}
+              disabled={isUpdating || !fields.length}
               onClick={handleFormCalculation}
             >
               Сформировать заявку
             </button>
-
-            <button
-              type="button"
-              className="btn-delete"
-              disabled={isUpdating}
-              onClick={handleDeleteCalculation}
-            >
+            <button className="btn-delete" disabled={isUpdating} onClick={handleDeleteCalculation}>
               Удалить заявку
             </button>
           </>
@@ -384,20 +329,12 @@ const ImpulseCalculationPage: FC = () => {
       {isFormed && userIsModerator && (
         <section className="actions actions--moder">
           <div className="moder-actions">
-            <button
-              type="button"
-              className="btn-reject"
-              disabled={isUpdating}
-              onClick={() => handleResolveCalculationClick('REJECTED')}
-            >
+            <button className="btn-reject" disabled={isUpdating} 
+                    onClick={() => handleResolveCalculationClick('REJECTED')}>
               Отклонить
             </button>
-            <button
-              type="button"
-              className="btn-approve"
-              disabled={isUpdating}
-              onClick={() => handleResolveCalculationClick('COMPLETED')}
-            >
+            <button className="btn-approve" disabled={isUpdating} 
+                    onClick={() => handleResolveCalculationClick('COMPLETED')}>
               Подтвердить
             </button>
           </div>
