@@ -100,9 +100,9 @@ const AdminPage = () => {
         return (
             <div className="adm-container">
                 <div className="adm-page-head">
-                    <div style={{width: 120}}></div>
+                    <div className="adm-spacer"></div>
                     <h2 className="adm-page-title">{editingId ? 'Редактирование' : 'Добавление газа'}</h2>
-                    <div style={{width: 120}}></div>
+                    <div className="adm-spacer"></div>
                 </div>
 
                 <div className="adm-edit-container">
@@ -131,12 +131,8 @@ const AdminPage = () => {
                         </div>
 
                         <div className="adm-edit-actions">
-                            <button type="button" className="adm-btn" onClick={() => setView('list')}>
-                                Отмена
-                            </button>
-                            <button type="submit" className="adm-btn adm-btn-ghost">
-                                Сохранить
-                            </button>
+                            <button type="button" className="adm-btn">Отмена</button>
+                            <button type="submit" className="adm-btn adm-btn-ghost">Сохранить</button>
                         </div>
                     </form>
                 </div>
@@ -148,7 +144,7 @@ const AdminPage = () => {
     return (
         <div className="adm-container">
             {isLoading ? (
-                <div style={{textAlign: 'center', marginTop: 50, color: '#a9c2d8'}}>Загрузка...</div>
+                <div className="adm-loading">Загрузка...</div>
             ) : (
                 <>
                     <div className="adm-list">
@@ -161,10 +157,10 @@ const AdminPage = () => {
                                             src={
                                                 gas.image_url
                                                     ? gas.image_url.replace(
-                                                    'http://localhost:9000',
-                                                    '/minio',
-                                                )
-                                                : getAsset('defaultgas.png')
+                                                        'http://localhost:9000',
+                                                        '/minio',
+                                                    )
+                                                    : getAsset('defaultgas.png')
                                             }
                                             alt="" 
                                             className="adm-row-img"
@@ -183,10 +179,10 @@ const AdminPage = () => {
                                     </div>
                                     
                                     <div className="adm-row-actions">
-                                        <button className="adm-btn adm-btn-ghost" style={{height: 40, fontSize: 14, minWidth: 100}} onClick={() => handleEdit(gas)}>
+                                        <button className="adm-btn adm-btn-ghost adm-btn-small" onClick={() => handleEdit(gas)}>
                                             Редактировать
                                         </button>
-                                        <button className="adm-btn adm-btn-delete" style={{height: 40, fontSize: 14, minWidth: 100}} onClick={() => handleDelete(gas.id || 0)}>
+                                        <button className="adm-btn adm-btn-delete adm-btn-small" onClick={() => handleDelete(gas.id || 0)}>
                                             Удалить
                                         </button>
                                     </div>
@@ -195,8 +191,8 @@ const AdminPage = () => {
                         })}
                     </div>
 
-                    <div className="adm-page-head" style={{justifyContent: 'center'}}>
-                        <button className="adm-btn adm-btn-ghost" onClick={handleCreate} style={{width: 160}}>
+                    <div className="adm-page-head adm-page-head-centered">
+                        <button className="adm-btn adm-btn-ghost adm-btn-wide" onClick={handleCreate}>
                             Добавить
                         </button>
                     </div>

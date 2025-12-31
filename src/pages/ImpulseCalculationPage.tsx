@@ -16,7 +16,6 @@ interface GasField {
 }
 
 const STATUS_DRAFT = 'DRAFT'
-const STATUS_FORMED = 'FORMED'
 
 const ImpulseCalculationPage: FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -25,7 +24,7 @@ const ImpulseCalculationPage: FC = () => {
 
   const { calculation, fields, temperature, isLoading, isUpdating, error } =
     useAppSelector((state: any) => state.impulseCalculation)
-  const { isAuthenticated, isModerator } = useAppSelector((state: any) => state.user)
+  const { isAuthenticated } = useAppSelector((state: any) => state.user)
 
   const [tempValue, setTempValue] = useState<string>('')
   const [editingRow, setEditingRow] = useState<number | null>(null)
@@ -137,21 +136,10 @@ const ImpulseCalculationPage: FC = () => {
     }
   }
 
-  const handleResolveCalculationClick = async (action: 'COMPLETED' | 'REJECTED') => {
-    if (!id) return
-    dispatch({ type: 'impulseCalculation/setUpdating', payload: true })
-    try {
-      await api.impulseCalculations.resolveUpdate(Number(id), { status: action })
-      await loadCalculation()
-    } catch (err: any) {
-      dispatch({ type: 'impulseCalculation/setError', payload: 'Ошибка обработки' })
-    }
-  }
-
   if (!isAuthenticated || isLoading) {
     return (
       <main className="container">
-        <p style={{ textAlign: 'center' }}>
+        <p className="loading-text">
           {isLoading ? 'Загрузка...' : 'Не авторизован'}
         </p>
       </main>
@@ -161,7 +149,7 @@ const ImpulseCalculationPage: FC = () => {
   if (error) {
     return (
       <main className="container">
-        <p style={{ textAlign: 'center', color: '#ff6b6b' }}>{error}</p>
+        <p className="error-text">{error}</p>
       </main>
     )
   }
@@ -169,7 +157,7 @@ const ImpulseCalculationPage: FC = () => {
   if (!calculation) {
     return (
       <main className="container">
-        <p style={{ textAlign: 'center' }}>Расчет не найден</p>
+        <p className="empty-text">Расчет не найден</p>
       </main>
     )
   }
@@ -179,18 +167,13 @@ const ImpulseCalculationPage: FC = () => {
 
   const status = calculation.status
   const isDraft = status === STATUS_DRAFT
-  const isFormed = status === STATUS_FORMED
-  const userIsModerator = !!isModerator
 
   return (
-    <main className="container">
+    <main className="container imp-calc">
       <h1 className="page-title">Составление заявки</h1>
 
-      <div style={{ 
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        gap: '20px', marginBottom: '10px', width: '100%'
-      }}>
-        <label className="inline" style={{ marginBottom: 0 }}>
+      <div className="temperature-section">
+        <label className="inline">
           <span>Температура топлива в реакторе:</span>
           <div className="input-rect temp-rect">
             <input
@@ -209,10 +192,9 @@ const ImpulseCalculationPage: FC = () => {
         </label>
         {isDraft && (
           <button
-            className="btn-mini"
+            className="btn-mini temp-save-btn"
             onClick={saveTemperature}
             disabled={isUpdating}
-            style={{ cursor: isUpdating ? 'wait' : 'pointer', opacity: isUpdating ? 0.7 : 1 }}
           >
             Сохранить
           </button>
@@ -246,7 +228,7 @@ const ImpulseCalculationPage: FC = () => {
             <div className="row-left">
               <div className="row-head">
                 <div className="row-title"><div className="title">{field.title}</div></div>
-                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <div className="row-actions">
                   <Link className="btn-mini" to={`/gases/${field.gas_id}`}>Подробнее</Link>
                   {isDraft && (
                     <button 
@@ -260,12 +242,15 @@ const ImpulseCalculationPage: FC = () => {
                 </div>
               </div>
               <div className="row_specs">
-                <div className="field">
-                  <div className="input-rect" onClick={() => {
-                    if (!isDraft || editingRow === idx || isUpdating) return
-                    setEditingRow(idx)
-                    setEditValues({ mass: String(field.mass) })
-                  }}>
+                <div className="field mass-field">
+                  <div 
+                    className={`input-rect ${editingRow === idx ? 'editing' : ''}`}
+                    onClick={() => {
+                      if (!isDraft || editingRow === idx || isUpdating) return
+                      setEditingRow(idx)
+                      setEditValues({ mass: String(field.mass) })
+                    }}
+                  >
                     {editingRow === idx ? (
                       <>
                         <input
@@ -306,14 +291,14 @@ const ImpulseCalculationPage: FC = () => {
             </div>
           </article>
         ))}
-        {fields.length === 0 && <p style={{ textAlign: 'center' }}>Нет газов в расчете</p>}
+        {fields.length === 0 && <p className="empty-text">Нет газов в расчете</p>}
       </section>
 
-      <div className="actions" style={{ display: 'flex', justifyContent: 'center', gap: '24px', margin: '24px 0' }}>
+      <div className="actions">
         {isDraft && (
           <>
             <button
-              className="btn-delete"
+              className="btn-delete form-btn"
               disabled={isUpdating || !fields.length}
               onClick={handleFormCalculation}
             >
@@ -325,21 +310,6 @@ const ImpulseCalculationPage: FC = () => {
           </>
         )}
       </div>
-
-      {isFormed && userIsModerator && (
-        <section className="actions actions--moder">
-          <div className="moder-actions">
-            <button className="btn-reject" disabled={isUpdating} 
-                    onClick={() => handleResolveCalculationClick('REJECTED')}>
-              Отклонить
-            </button>
-            <button className="btn-approve" disabled={isUpdating} 
-                    onClick={() => handleResolveCalculationClick('COMPLETED')}>
-              Подтвердить
-            </button>
-          </div>
-        </section>
-      )}
     </main>
   )
 }

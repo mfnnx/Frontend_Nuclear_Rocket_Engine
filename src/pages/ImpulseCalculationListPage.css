@@ -1,3 +1,85 @@
+@font-face{
+  font-family: 'Mariupol';
+  src: url('fonts/Mariupol-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face{
+  font-family: 'Mariupol';
+  src: url('fonts/Mariupol-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face{
+  font-family: 'Mariupol';
+  src: url('fonts/Mariupol-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root{
+  --bg:#122742;
+  --text:#fff;
+  --muted:#A9C2D8;
+  --accent:#D2F95F;
+  --panel:#0f2f4a; 
+  --border:#324E71; 
+  --shadow:0 16px 36px rgba(0,0,0,.28)
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Mariupol',sans-serif}
+
+.container{max-width:1137px;margin:24px auto 80px;padding:0 18px}
+
+/* === ИЗВЛЕЧЕННЫЕ ИЗ ВЕРСТКИ === */
+
+/* TimeToast */
+.time-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #333;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.time-toast-icon {
+  font-size: 20px;
+}
+
+.time-toast-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.time-toast-label {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.time-toast-value {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.time-toast-value.slow {
+  color: #ff8787;
+}
+
+.time-toast-value.fast {
+  color: #69db7c;
+}
+
+/* Ваши изначальные стили */
 .history-filters {
   display: flex;
   gap: 24px;
@@ -37,6 +119,16 @@
   border-color: var(--accent);
 }
 
+.history-filter select {
+  background-color: #122742;
+  color: #ffffff;
+}
+
+.history-filter select option {
+  background-color: #122742;
+  color: #ffffff;
+}
+
 .history-list {
   display: flex;
   flex-direction: column;
@@ -68,6 +160,10 @@
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
 }
 
+.history-row.moderator-formed {
+  border-left: 4px solid #ffc107;
+}
+
 .history-row-main {
   display: flex;
   justify-content: space-between;
@@ -80,6 +176,13 @@
   font-weight: 600;
 }
 
+.user-info {
+  font-size: 14px;
+  color: var(--muted);
+  margin-left: 10px;
+  font-weight: normal;
+}
+
 .history-status {
   padding: 4px 12px;
   border-radius: 999px;
@@ -88,7 +191,6 @@
   border: 1px solid var(--border);
 }
 
-/* подгони под свои реальные значения статусов */
 .history-status--draft {
   border-color: #ffc107;
   color: #ffc107;
@@ -123,17 +225,18 @@
   color: var(--text);
 }
 
-.history-filter select {
-  background-color: #122742;
-  color: #ffffff;
+.history-date-second {
+  margin-left: 20px;
 }
 
-/* выпадающий список опций */
-.history-filter select option {
-  background-color: #122742;
-  color: #ffffff;
+.metrics-gas,
+.metrics-impulse {
+  margin-left: 20px;
 }
-/* ... (ваши старые стили history-filters, history-row и т.д. остаются) ... */
+
+.impulse-value {
+  font-weight: bold;
+}
 
 /* === САЙДБАР МОДЕРАТОРА === */
 .moderator-sidebar {
@@ -146,10 +249,9 @@
   flex-direction: column;
   gap: 8px;
   position: relative;
-  box-shadow: var(--shadow); /* Тень как у карточек */
+  box-shadow: var(--shadow);
 }
 
-/* Рамка сайдбара через псевдоэлемент (как у history-row) */
 .moderator-sidebar::before {
   content: '';
   position: absolute;
@@ -173,7 +275,7 @@
   cursor: pointer;
   border-radius: 12px;
   background: transparent;
-  border: 1px solid transparent; /* Резерв под активное состояние */
+  border: 1px solid transparent;
   color: var(--muted);
   display: flex;
   justify-content: space-between;
@@ -187,9 +289,8 @@
   color: var(--text);
 }
 
-/* Активный элемент сайдбара */
 .sidebar-item.active {
-  background: rgba(36, 161, 222, 0.15); /* Цвет --accent с прозрачностью */
+  background: rgba(36, 161, 222, 0.15);
   border-color: var(--accent);
   color: var(--accent);
   font-weight: 600;
@@ -209,6 +310,51 @@
   margin: 5px 0;
   border-radius: 2px;
   opacity: 0.5;
+}
+
+/* Кнопки модератора */
+.moderator-actions {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+.btn-approve,
+.btn-reject {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.btn-approve {
+  background: #28a745;
+  color: #fff;
+}
+
+.btn-approve:hover:not(:disabled) {
+  background: #218838;
+}
+
+.btn-reject {
+  background: #dc3545;
+  color: #fff;
+}
+
+.btn-reject:hover:not(:disabled) {
+  background: #c82333;
+}
+
+.btn-approve:disabled,
+.btn-reject:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* === ПАГИНАЦИЯ === */
@@ -246,10 +392,63 @@
   color: var(--muted);
 }
 
+/* Тексты состояний */
+.loading-text,
+.error-text,
+.empty-text {
+  text-align: center;
+  padding: 40px 20px;
+  font-size: 16px;
+}
+
+.error-text {
+  color: #ff6b6b;
+}
+
+.empty-text {
+  color: var(--muted);
+}
+
+/* Основной контент */
+.main-content {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+.content-main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Адаптив */
+@media (max-width: 980px) {
+  .main-content {
+    flex-direction: column;
+  }
+  
+  .moderator-sidebar {
+    width: 100%;
+    order: 2;
+  }
+  
+  .history-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
 @media (max-width: 720px) {
   .history-row-meta,
   .history-row-metrics {
     flex-direction: column;
     gap: 6px;
+  }
+  
+  .metrics-gas,
+  .metrics-impulse,
+  .history-date-second {
+    margin-left: 0 !important;
+    margin-top: 8px;
   }
 }

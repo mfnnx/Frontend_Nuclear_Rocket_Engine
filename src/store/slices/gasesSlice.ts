@@ -52,7 +52,7 @@ export const getGasesList = createAsyncThunk(
   }
 )
 
-// --- НОВЫЕ МЕТОДЫ ДЛЯ АДМИНКИ (БЕЗ ИЗМЕНЕНИЙ) ---
+
 export const createGas = createAsyncThunk(
   'gases/create',
   async (data: DsGasCreateRequest, { rejectWithValue }) => {

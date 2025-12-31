@@ -5,7 +5,6 @@ import './HomePage.css'
 const HomePage: FC = () => {
   return (
     <Container className="home-with-video">
-      {/* Видео только внутри контейнера */}
       <div className="video-container">
         <video
           className="home-video"
@@ -17,7 +16,6 @@ const HomePage: FC = () => {
         />
       </div>
       
-      {/* Ваш контент */}
       <div className="page-head">
         <h1 className="page-title">Ядерные ракетные двигатели</h1>
       </div>

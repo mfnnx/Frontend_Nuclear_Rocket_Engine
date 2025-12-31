@@ -30,11 +30,11 @@ const TimeToast = ({ timeMs }: { timeMs: number | null }) => {
     if (!visible || timeMs === null) return null;
 
     return (
-        <div style={{ position: 'fixed', bottom: '20px', right: '20px', background: '#333', color: '#fff', padding: '12px 24px', borderRadius: '8px', zIndex: 9999, display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontSize: '20px' }}>⏱</span>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '11px', opacity: 0.7 }}>RESPONSE TIME</span>
-                <span style={{ fontWeight: 'bold', fontSize: '16px', color: timeMs > 100 ? '#ff8787' : '#69db7c' }}>
+        <div className="time-toast">
+            <span className="time-toast-icon">⏱</span>
+            <div className="time-toast-content">
+                <span className="time-toast-label">RESPONSE TIME</span>
+                <span className={`time-toast-value ${timeMs > 100 ? 'slow' : 'fast'}`}>
                     {timeMs.toFixed(2)} ms
                 </span>
             </div>
@@ -55,31 +55,33 @@ const ImpulseCalculationListPage: FC = () => {
     const [page, setPage] = useState(1)
     const limit = 7 
     
-    // Инициализируем фильтры с сегодняшней датой
     const [filters, setFilters] = useState({ 
-        status: isModerator ? 'all' : 'FORMED', // ← Обычный пользователь: только FORMED по умолчанию
+        status: isModerator ? 'all' : 'FORMED', 
         from: getTodayDate(),
         to: '' 
     })
     
     const [selectedUserId, setSelectedUserId] = useState<number | 'all'>('all');
-    const [useIndex, setUseIndex] = useState(true);
 
     const loadData = () => {
         const params: Record<string, any> = { page, limit }
         
-        // ← ФИЛЬТРАЦИЯ ПО СТАТУСАМ
+        // ✅ НИКОГДА НЕ ПОКАЗЫВАЕМ DRAFT!
         if (!isModerator && filters.status === 'all') {
-            // Обычный пользователь: показываем только FORMED и COMPLETED
-            params.status = 'FORMED,COMPLETED'
+            params.status = 'FORMED,COMPLETED'  // обычные пользователи
+        } else if (isModerator && filters.status === 'all') {
+            params.status = 'FORMED,COMPLETED,REJECTED'  // модераторы БЕЗ DRAFT
         } else if (filters.status !== 'all') {
-            params.status = filters.status
+            // ✅ Исключаем DRAFT даже для конкретных статусов
+            if (filters.status === 'FORMED' || filters.status === 'COMPLETED' || filters.status === 'REJECTED') {
+                params.status = filters.status
+            }
         }
         
         if (filters.from) params.from = filters.from
         if (filters.to) params.to = filters.to
         if (isModerator && selectedUserId !== 'all') params.user_id = selectedUserId;
-        params.use_index = useIndex;
+        
         dispatch(fetchImpulseCalculationsList(params))
     }
 
@@ -89,8 +91,7 @@ const ImpulseCalculationListPage: FC = () => {
             return;
         }
         loadData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, filters, selectedUserId, useIndex, userState.isAuthenticated]);
+    }, [page, filters, selectedUserId, userState.isAuthenticated]);
 
     useEffect(() => {
         if (!isModerator) return; 
@@ -110,7 +111,6 @@ const ImpulseCalculationListPage: FC = () => {
 
     const handleResolve = (e: React.MouseEvent, id: number, status: string) => {
         e.stopPropagation();
-        // @ts-ignore
         dispatch(resolveCalculation({ id, status })).then(() => {
             loadData();
         });
@@ -126,17 +126,17 @@ const ImpulseCalculationListPage: FC = () => {
         <main className="container">
             <TimeToast timeMs={timeMs} />
 
-            <section className="history-filters" style={{ alignItems: 'flex-end' }}>
+            <section className="history-filters">
                 <div className="history-filter">
                     <label htmlFor="status">Статус</label>
                     <select id="status" name="status" value={filters.status} onChange={handleFilterChange}>
                         {isModerator ? (
                             <>
-                                <option value="all">Все</option>
-                                <option value="DRAFT">Черновик</option>
+                                <option value="all">Все заявки</option>  {/* ✅ только FORMED+COMPLETED+REJECTED */}
                                 <option value="FORMED">Сформирована</option>
                                 <option value="COMPLETED">Завершена</option>
                                 <option value="REJECTED">Отклонена</option>
+                                {/* ✅ DRAFT УБРАН */}
                             </>
                         ) : (
                             <>
@@ -147,27 +147,16 @@ const ImpulseCalculationListPage: FC = () => {
                     </select>
                 </div>
                 <div className="history-filter">
-                    <label htmlFor="from">Дата (от)</label>
+                    <label htmlFor="from">Дата формирования (от)</label>
                     <input id="from" type="date" name="from" value={filters.from} onChange={handleFilterChange} />
                 </div>
                 <div className="history-filter">
-                    <label htmlFor="to">Дата (до)</label>
+                    <label htmlFor="to">Дата формирования (до)</label>
                     <input id="to" type="date" name="to" value={filters.to} onChange={handleFilterChange} />
-                </div>
-                <div className="history-filter" style={{ paddingBottom: '10px' }}>
-                    <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
-                        <input 
-                            type="checkbox" 
-                            checked={useIndex} 
-                            onChange={(e) => setUseIndex(e.target.checked)}
-                            style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                        />
-                        Использовать Индекс
-                    </label>
                 </div>
             </section>
 
-            <div style={{ display: 'flex', gap: '30px', alignItems: 'flex-start' }}>
+            <div className="main-content">
                 {isModerator && (
                     <aside className="moderator-sidebar">
                         <h4 className="sidebar-title">👤 Пользователи</h4>
@@ -192,63 +181,80 @@ const ImpulseCalculationListPage: FC = () => {
                     </aside>
                 )}
 
-                <div style={{ flex: 1 }}>
-                    {isLoading && !list.length && <p style={{ textAlign: 'center' }}>Загрузка...</p>}
-                    {error && <p style={{ textAlign: 'center', color: '#ff6b6b' }}>{error}</p>}
-                    {!isLoading && list.length === 0 && !error && <p style={{ textAlign: 'center' }}>Заявок не найдено</p>}
+                <div className="content-main">
+                    {isLoading && !list.length && <p className="loading-text">Загрузка...</p>}
+                    {error && <p className="error-text">{error}</p>}
+                    {!isLoading && list.length === 0 && !error && <p className="empty-text">Заявок не найдено</p>}
 
-                    <section className="history-list" style={{ marginTop: 0 }}>
+                    <section className="history-list">
                         {list.map((item: DsImpulseCalculationDTO) => {
-                            const isDraft = item.status === 'DRAFT';
-                            // Кол-во газов (берем 0 для черновика или длину списка)
-                            const gasCount = isDraft ? 0 : (item.fields?.length ?? 4); 
+                            const gasCount = item.fields?.length ?? 4; 
+                            const totalImpulse = item.fields?.reduce((acc, curr) => acc + (curr.impulse || 0), 0) ?? 0;
 
-                            // Импульс
-                            const totalImpulse = isDraft 
-                                ? 0 
-                                : (item.fields?.reduce((acc, curr) => acc + (curr.impulse || 0), 0) ?? 0);
+                            const isCompleted = item.status === 'COMPLETED';
+                            const isRejected = item.status === 'REJECTED';
+                            const showSecondDate = (isCompleted || isRejected) && item.date_accepted;
 
                             return (
                                 <article
                                     key={item.id}
-                                    className="history-row"
+                                    className={`history-row ${isModerator && item.status === 'FORMED' ? 'moderator-formed' : ''}`}
                                     onClick={() => handleOpenCalculation(item.id)}
-                                    style={{ borderLeft: isModerator && item.status === 'FORMED' ? '4px solid #ffc107' : undefined }}
                                 >
                                     <div className="history-row-main">
                                         <div className="history-row-title">
                                             Заявка №{item.id} 
-                                            {isModerator && <span style={{ fontSize: '14px', color: 'var(--muted)', marginLeft: '10px', fontWeight: 'normal' }}>from User #{item.user_id}</span>}
+                                            {isModerator && <span className="user-info">from User #{item.user_id}</span>}
                                         </div>
-                                        <div className={'history-status ' + (item.status ? `history-status--${item.status.toLowerCase()}` : '')}>{item.status}</div>
+                                        <div className={`history-status history-status--${item.status?.toLowerCase() || ''}`}>{item.status}</div>
                                     </div>
                                     
                                     <div className="history-row-meta">
-                                        <div><span className="history-label">Создана: </span><span>{item.date_created ? new Date(item.date_created).toLocaleString('ru-RU') : '--'}</span></div>
-                                        
-                                        {!isDraft && item.date_formed && (
-                                            <div><span className="history-label">Сформирована: </span><span>{new Date(item.date_formed).toLocaleString('ru-RU')}</span></div>
+                                        <div>
+                                            <span className="history-label">Сформирована: </span>
+                                            <span>{item.date_formed ? new Date(item.date_formed).toLocaleString('ru-RU') : '--'}</span>
+                                        </div>
+                                        {showSecondDate && (
+                                            <div className="history-date-second">
+                                                <span className="history-label">
+                                                    {isCompleted ? 'Завершена: ' : 'Отклонена: '}
+                                                </span>
+                                                <span>{new Date(item.date_accepted!).toLocaleString('ru-RU')}</span>
+                                            </div>
                                         )}
                                     </div>
 
                                     <div className="history-row-metrics">
                                         <div><span className="history-label">Температура: </span><span>{item.temperature ?? '--'} K</span></div>
-                                        <div style={{ marginLeft: '20px' }}>
+                                        <div className="metrics-gas">
                                             <span className="history-label">Газы: </span>
                                             <span>{gasCount}</span>
                                         </div>
-                                        <div style={{ marginLeft: '20px' }}>
-                                            <span className="history-label">Импульс: </span>
-                                            <span style={{ fontWeight: 'bold' }}>
-                                                {totalImpulse.toFixed(3)} Н·с
-                                            </span>
-                                        </div>
+                                        
+                                        {isCompleted && (
+                                            <div className="metrics-impulse">
+                                                <span className="history-label">Импульс: </span>
+                                                <span className="impulse-value">
+                                                    {totalImpulse.toFixed(3)} Н·с
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {isModerator && item.status === 'FORMED' && (
-                                        <div style={{ marginTop: '15px', display: 'flex', gap: '10px', borderTop: '1px solid #eee', paddingTop: '10px' }}>
-                                            <button onClick={(e) => handleResolve(e, item.id || 0, 'COMPLETED')} style={{ flex: 1, padding: '8px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>Завершить</button>
-                                            <button onClick={(e) => handleResolve(e, item.id || 0, 'REJECTED')} style={{ flex: 1, padding: '8px', background: '#dc3545', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>Отклонить</button>
+                                        <div className="moderator-actions">
+                                            <button 
+                                                className="btn-approve" 
+                                                onClick={(e) => handleResolve(e, item.id || 0, 'COMPLETED')}
+                                            >
+                                                Завершить
+                                            </button>
+                                            <button 
+                                                className="btn-reject" 
+                                                onClick={(e) => handleResolve(e, item.id || 0, 'REJECTED')}
+                                            >
+                                                Отклонить
+                                            </button>
                                         </div>
                                     )}
                                 </article>
@@ -258,9 +264,9 @@ const ImpulseCalculationListPage: FC = () => {
 
                     {totalPages > 1 && (
                         <div className="pagination">
-                            <button className="pagination-btn" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>&larr; Назад</button>
+                            <button className="pagination-btn prev" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>&larr; Назад</button>
                             <span className="pagination-info">Страница {page} из {totalPages}</span>
-                            <button className="pagination-btn" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>Вперед &rarr;</button>
+                            <button className="pagination-btn next" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>Вперед &rarr;</button>
                         </div>
                     )}
                 </div>
